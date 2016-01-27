@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">OpenCVTest</string>
+    <string name="object">object</string>
+    <string name="loop">Take picture as loop</string>
 </resources>

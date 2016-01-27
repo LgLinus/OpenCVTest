@@ -20,17 +20,18 @@
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:weightSum="2">
-        <Button
+        <ImageButton
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Chagne camera"
+            android:background="@drawable/change_camera"
             android:id="@+id/btnChangeCamera"/>
 
 
-        <Button
+        <ImageButton
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Chagne color"
+            android:background="@drawable/change_color"
             android:id="@+id/btnChangeColor"/>
 
         <Button

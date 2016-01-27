@@ -1,8 +1,11 @@
 package com.example.linusgranath.opencvtest;
 
 import android.app.Activity;
+import android.content.Context;
+import android.content.ContextWrapper;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.Environment;
@@ -14,6 +17,7 @@ import android.view.SurfaceView;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.Toast;
 
@@ -38,7 +42,7 @@ import java.util.Date;
 /**
  * Application used to test OpenCV
  */
-public class MainActivity extends Activity implements CameraBridgeViewBase.CvCameraViewListener2 {
+public class MainActivity extends OptionsSuperClass implements CameraBridgeViewBase.CvCameraViewListener2 {
 
     public static final String TAG = "test opencv";
 
@@ -48,6 +52,8 @@ public class MainActivity extends Activity implements CameraBridgeViewBase.CvCam
     private boolean flipVert = false, flipHorizontal = false;
     private ImageView imageView;
     private Mat currentFrame;
+
+    private int counter = 1;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -66,7 +72,7 @@ public class MainActivity extends Activity implements CameraBridgeViewBase.CvCam
 
         imageView = (ImageView)findViewById(R.id.ivImage);
 
-        Button btn = (Button)findViewById(R.id.btnChangeCamera);
+        ImageButton btn = (ImageButton)findViewById(R.id.btnChangeCamera);
         btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -83,7 +89,8 @@ public class MainActivity extends Activity implements CameraBridgeViewBase.CvCam
             }
         });
 
-        Button btnChangeColor = (Button)findViewById(R.id.btnChangeColor);
+
+        ImageButton btnChangeColor = (ImageButton)findViewById(R.id.btnChangeColor);
         btnChangeColor.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -170,38 +177,40 @@ public class MainActivity extends Activity implements CameraBridgeViewBase.CvCam
         // Create bitmap from image
         Bitmap resultBitmap = Bitmap.createBitmap(matrix.cols(),matrix.rows(),Bitmap.Config.ARGB_8888);
         Utils.matToBitmap(matrix, resultBitmap);
-
+/*
         BitmapDrawable drawableBitmap = new BitmapDrawable(getResources(),resultBitmap);
         imageView.setBackgroundResource(0);
         imageView.setBackground(drawableBitmap);
+        */
        // imageView.setBackgroundResource(R.drawable.homer);
         Log.d(TAG,"set image");
 
         Date date = new Date();
 
         SimpleDateFormat ft =
-                new SimpleDateFormat ("yyyy/mm/dd/hh/mm/ss");
+                new SimpleDateFormat ("yyyy/mm/dd_hh/mm/ss");
 
-        String filename = ft.format(date);
-
-        String path = Environment.getExternalStorageDirectory().toString();
-        OutputStream fOut = null;
-        File file = new File(path, filename+".jpg"); // the File to save to
-        file.mkdirs();
+      //  String filename = ft.format(date);
+        String filename = "apple"+counter;
+        ContextWrapper cw = new ContextWrapper(getApplicationContext());
+        // path to /data/data/yourapp/app_data/imageDir
+        File directory = cw.getDir("imageDir",Context.MODE_PRIVATE);
+        // Create imageDir
+        File mypath=new File(directory,filename+".png");
+        FileOutputStream fos = null;
         try {
-            fOut = new FileOutputStream(file);
-            resultBitmap.compress(Bitmap.CompressFormat.JPEG, 85, fOut); // saving the Bitmap to a file compressed as a JPEG with 85% compression rate
-            fOut.flush();
-            fOut.close(); // do not forget to close the stream
+            fos = new FileOutputStream(mypath);
+            // Use the compress method on the BitMap object to write image to the OutputStream
+            resultBitmap.compress(Bitmap.CompressFormat.PNG, 100, fos);
+            fos.close();
+            MediaStore.Images.Media.insertImage(getContentResolver(), resultBitmap, filename+".png", "xaxa");
+            counter++;
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
 
-            MediaStore.Images.Media.insertImage(getContentResolver(), file.getAbsolutePath(), file.getName(), file.getName());
         }
-        catch(FileNotFoundException e){
-            Log.d(TAG,"couldn\'t find file");
-        }
-        catch(Exception e){
-            Log.d(TAG,"error save file");
-        }
+
     }
 
     /**
